@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-// Animation configurations for reuse
+// Animation configurations for envelope and letter
 const animationConfig = {
-    initial: { y: 0, opacity: 1 }, // Initial state of the envelope
-    hidden: { y: 100, opacity: 0 }, // Hidden state when the envelope moves down
-    visible: { y: -50, opacity: 1 }, // Visible state when the letter slides up
-    transition: { duration: 0.8, ease: "easeInOut", delay: 0.2 } // Added easing and delay for smoother transition
+    initial: { y: 0, opacity: 1 }, // Initial position
+    envelopeHidden: { y: 200, opacity: 0 }, // Moves envelope downward and disappears
+    letterVisible: { y: -50, opacity: 1 }, // Moves letter upward
+    transition: { duration: 0.8 } // Smooth transition
 };
 
 export default function App() {
@@ -15,16 +15,16 @@ export default function App() {
     const [accepted, setAccepted] = useState(false); // Tracks if 'Yes' has been clicked
     const [yesButtons, setYesButtons] = useState([]); // Stores dynamically generated 'Yes' buttons
 
-    // Handles the 'No' button clicks by generating more 'Yes' buttons
+    // Handles the 'No' button clicks by generating more 'Yes' buttons across the entire card
     const handleNoClick = () => {
         setNoClicks((prev) => prev + 1);
         setYesButtons((prev) => {
-            if (prev.length > 15) return prev; // Limit the number of Yes buttons to avoid overflow
+            if (prev.length > 250) return prev; // Increase the max limit for better coverage
             return [
                 ...prev,
                 ...Array(prev.length + 1).fill(null).map((_, i) => ({
-                    top: `${Math.random() * 40 + 30}%`, // Random vertical position within bounds
-                    left: `${Math.random() * 40 + 30}%`, // Random horizontal position within bounds
+                    top: `${Math.random() * 90 + 5}%`, // Spread across entire card vertically
+                    left: `${Math.random() * 90 + 5}%`, // Spread across entire card horizontally
                     zIndex: prev.length + i, // Ensure overlap of Yes buttons
                 })),
             ];
@@ -37,7 +37,7 @@ export default function App() {
                 {/* Envelope */}
                 <motion.div
                     initial={animationConfig.initial}
-                    animate={opened ? animationConfig.hidden : animationConfig.initial}
+                    animate={opened ? animationConfig.envelopeHidden : animationConfig.initial}
                     transition={animationConfig.transition}
                     className="relative flex items-center justify-center bg-red-600 rounded-lg shadow-xl cursor-pointer w-full max-w-md md:max-w-lg h-auto min-h-[20vh] md:min-h-[30vh] text-white font-bold text-2xl"
                     onClick={() => setOpened(true)}
@@ -53,8 +53,8 @@ export default function App() {
                 {/* Letter */}
                 {opened && (
                     <motion.div
-                        initial={animationConfig.hidden}
-                        animate={animationConfig.visible}
+                        initial={animationConfig.envelopeHidden}
+                        animate={animationConfig.letterVisible}
                         transition={animationConfig.transition}
                         className="relative flex flex-col items-center p-6 bg-blue-200 shadow-lg rounded-lg w-full max-w-2xl h-auto min-h-[50vh] flex-grow"
                     >
@@ -63,13 +63,13 @@ export default function App() {
                                 {/* Confused GIF */}
                                 <img src='https://media1.tenor.com/m/YciMs8-7iKAAAAAC/modcheck-confuse.gif' alt='Confused' className='w-240 h-240 mb-4' />
                                 <p className="text-lg font-semibold text-center">Hi Josie, Will you be my Valentine? ❤️</p>
-                                <div className="w-full flex flex-wrap items-center justify-center gap-4 mt-6 relative">
+                                <div className="w-full h-full flex flex-wrap items-center justify-center gap-4 mt-6 relative">
                                     {/* Yes button */}
                                     <motion.button
                                         className="bg-red-500 text-white px-4 py-2 rounded relative z-10"
                                         onClick={() => setAccepted(true)}
                                     >
-                                        Yes
+                                        Yes!
                                     </motion.button>
                                     {/* No button */}
                                     <motion.button
@@ -83,10 +83,10 @@ export default function App() {
                                         <motion.button
                                             key={index}
                                             onClick={() => setAccepted(true)}
-                                            className="absolute bg-red-500 text-white px-4 py-2 rounded"
+                                            className="absolute bg-red-500 text-white  px-4 py-2 rounded"
                                             style={{ top: `calc(${pos.top} - 10%)`, left: `calc(${pos.left} - 10%)`, zIndex: pos.zIndex, maxWidth: '100px' }}
                                         >
-                                            Yes
+                                            Yes!
                                         </motion.button>
                                     ))}
                                 </div>
@@ -95,7 +95,7 @@ export default function App() {
                             <>
                                 {/* Celebration GIF when Yes is clicked */}
                                 <img src='https://media.tenor.com/ocBrDK-xRl4AAAAi/love-it-i-love-it.gif' alt='Love It' className='w-240 h-240 mb-4' />
-                                <p className="text-lg font-semibold text-center text-red-500">Yay! ❤️ Happy Valentine's Day!</p>
+                                <p className="text-lg font-semibold text-center text-red-500">Yay! I knew you were going to say Yes!❤️ Happy Valentine's Day!</p>
                             </>
                         )}
                     </motion.div>

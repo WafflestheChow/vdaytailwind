@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function App() {
-    const [opened, setOpened] = useState(false);
-    const [noClicks, setNoClicks] = useState(0);
-    const [accepted, setAccepted] = useState(false);
-    const [yesButtons, setYesButtons] = useState([]);
+// Animation configurations for reuse
+const animationConfig = {
+    initial: { y: 0, opacity: 1 }, // Initial state of the envelope
+    hidden: { y: 100, opacity: 0 }, // Hidden state when the envelope moves down
+    visible: { y: -50, opacity: 1 }, // Visible state when the letter slides up
+    transition: { duration: 0.8, ease: "easeInOut", delay: 0.2 } // Added easing and delay for smoother transition
+};
 
+export default function App() {
+    const [opened, setOpened] = useState(false); // Tracks if the envelope has been opened
+    const [noClicks, setNoClicks] = useState(0); // Counts the number of times 'No' is clicked
+    const [accepted, setAccepted] = useState(false); // Tracks if 'Yes' has been clicked
+    const [yesButtons, setYesButtons] = useState([]); // Stores dynamically generated 'Yes' buttons
+
+    // Handles the 'No' button clicks by generating more 'Yes' buttons
     const handleNoClick = () => {
         setNoClicks((prev) => prev + 1);
         setYesButtons((prev) => {
-            if (prev.length > 15) return prev; // Limit Yes buttons to eventually cover No
+            if (prev.length > 15) return prev; // Limit the number of Yes buttons to avoid overflow
             return [
                 ...prev,
                 ...Array(prev.length + 1).fill(null).map((_, i) => ({
-                    top: `${Math.random() * 40 + 30}%`,
-                    left: `${Math.random() * 40 + 30}%`,
-                    zIndex: prev.length + i, // Ensuring overlap
+                    top: `${Math.random() * 40 + 30}%`, // Random vertical position within bounds
+                    left: `${Math.random() * 40 + 30}%`, // Random horizontal position within bounds
+                    zIndex: prev.length + i, // Ensure overlap of Yes buttons
                 })),
             ];
         });
@@ -25,43 +34,51 @@ export default function App() {
     return (
         <div className="flex h-screen items-center justify-center bg-pink-200">
             <div className="relative flex flex-col items-center w-full max-w-full h-screen justify-center">
+                {/* Envelope */}
                 <motion.div
-                    initial={{ y: 0, opacity: 1 }}
-                    animate={opened ? { y: 100, opacity: 0 } : { y: 0, opacity: 1 }}
-                    transition={{ duration: 0.8 }}
+                    initial={animationConfig.initial}
+                    animate={opened ? animationConfig.hidden : animationConfig.initial}
+                    transition={animationConfig.transition}
                     className="relative flex items-center justify-center bg-red-600 rounded-lg shadow-xl cursor-pointer w-full max-w-md md:max-w-lg h-auto min-h-[20vh] md:min-h-[30vh] text-white font-bold text-2xl"
                     onClick={() => setOpened(true)}
                 >
+                    {/* Stamp */}
                     <img src="https://jerseystamps.com/cdn/shop/collections/Lunar_New_Year_Snake_Stamp.png?v=1735565398"
                          alt="2025 Stamp"
                          className="absolute top-2 right-2 w-16 h-16 object-cover" />
                     <p className="absolute bottom-1 right-2 text-white text-xxs font-bold scale-50">2025</p>
-                    <p className="absolute text-white text-3xl font-cursive">For Azizur</p>
+                    <p className="absolute text-white text-3xl font-cursive">For Josie</p>
                 </motion.div>
+
+                {/* Letter */}
                 {opened && (
                     <motion.div
-                        initial={{ y: 100, opacity: 0 }}
-                        animate={{ y: -50, opacity: 1 }}
-                        transition={{ duration: 0.8 }}
+                        initial={animationConfig.hidden}
+                        animate={animationConfig.visible}
+                        transition={animationConfig.transition}
                         className="relative flex flex-col items-center p-6 bg-blue-200 shadow-lg rounded-lg w-full max-w-2xl h-auto min-h-[50vh] flex-grow"
                     >
                         {!accepted ? (
                             <>
+                                {/* Confused GIF */}
                                 <img src='https://media1.tenor.com/m/YciMs8-7iKAAAAAC/modcheck-confuse.gif' alt='Confused' className='w-240 h-240 mb-4' />
-                                <p className="text-lg font-semibold text-center">Hi Azizur, Will you be my Valentine? ❤️</p>
+                                <p className="text-lg font-semibold text-center">Hi Josie, Will you be my Valentine? ❤️</p>
                                 <div className="w-full flex flex-wrap items-center justify-center gap-4 mt-6 relative">
+                                    {/* Yes button */}
                                     <motion.button
                                         className="bg-red-500 text-white px-4 py-2 rounded relative z-10"
                                         onClick={() => setAccepted(true)}
                                     >
                                         Yes
                                     </motion.button>
+                                    {/* No button */}
                                     <motion.button
                                         className="bg-red-500 text-white px-4 py-2 rounded relative z-0"
                                         onClick={handleNoClick}
                                     >
                                         No
                                     </motion.button>
+                                    {/* Dynamically generated Yes buttons */}
                                     {yesButtons.map((pos, index) => (
                                         <motion.button
                                             key={index}
@@ -76,8 +93,9 @@ export default function App() {
                             </>
                         ) : (
                             <>
+                                {/* Celebration GIF when Yes is clicked */}
                                 <img src='https://media.tenor.com/ocBrDK-xRl4AAAAi/love-it-i-love-it.gif' alt='Love It' className='w-240 h-240 mb-4' />
-                                <p className="text-lg font-semibold text-center text-red-500">Yay! I knew you'd click Yes!❤️ Happy Valentine's Day!</p>
+                                <p className="text-lg font-semibold text-center text-red-500">Yay! ❤️ Happy Valentine's Day!</p>
                             </>
                         )}
                     </motion.div>

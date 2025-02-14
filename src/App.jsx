@@ -16,19 +16,20 @@ export default function App() {
     const [yesButtons, setYesButtons] = useState([]);
 
     const handleNoClick = () => {
+        console.log("No button clicked"); // Debugging line
         setNoClicks((prev) => prev + 1);
+
         setYesButtons((prev) => {
-            if (prev.length > 250) return prev;
-            return [
-                ...prev,
-                ...Array(prev.length + 1).fill(null).map((_, i) => ({
-                    top: `${Math.random() * 90 + 5}%`,
-                    left: `${Math.random() * 90 + 5}%`,
-                    zIndex: prev.length + i,
-                })),
-            ];
+            if (prev.length >= 250) return prev;
+            const newButtons = Array.from({ length: noClicks + 1 }, () => ({
+                top: `${Math.random() * 80 + 10}%`,
+                left: `${Math.random() * 80 + 10}%`,
+                zIndex: prev.length + 1,
+            }));
+            return [...prev, ...newButtons];
         });
     };
+
 
     const handleRestart = () => {
         setOpened(false);
@@ -71,7 +72,7 @@ export default function App() {
                         {!accepted ? (
                             <>
                                 <img src='https://media1.tenor.com/m/YciMs8-7iKAAAAAC/modcheck-confuse.gif' alt='Confused' className='w-240 h-240 mb-4' />
-                                <p className="text-lg font-semibold text-center">Hi Josie, Will you be my Valentine? ❤️</p>
+                                <p className="text-lg text-black font-bold text-center">Hi Josie, It's that time of year again. Will you be my Valentine? ❤️</p>
                                 <div className="w-full h-full flex flex-wrap items-center justify-center gap-4 mt-6 relative">
                                     {/* Yes button */}
                                     <motion.button
@@ -79,7 +80,7 @@ export default function App() {
                                         aria-label="Accept and say Yes"
                                         onClick={() => setAccepted(true)}
                                     >
-                                        Yes!
+                                        <strong>Yes!</strong>
                                     </motion.button>
                                     {/* No button */}
                                     <motion.button
@@ -87,14 +88,26 @@ export default function App() {
                                         aria-label="Reject and click No"
                                         onClick={handleNoClick}
                                     >
-                                        No
+                                        <strong>No!</strong>
                                     </motion.button>
+                                    {/* Dynamically generated Yes buttons */}
+                                    {yesButtons.map((pos, index) => (
+                                        <motion.button
+                                            key={index}
+                                            onClick={() => setAccepted(true)}
+                                            className="absolute bg-red-700 text-white px-4 py-2 rounded focus:ring-4 focus:ring-white"
+                                            aria-label="Accept and say Yes"
+                                            style={{ top: pos.top, left: pos.left, zIndex: pos.zIndex }}
+                                        >
+                                            <strong>Yes!</strong>
+                                        </motion.button>
+                                    ))}
                                 </div>
                             </>
                         ) : (
                             <>
                                 <img src='https://media.tenor.com/ocBrDK-xRl4AAAAi/love-it-i-love-it.gif' alt='Love It' className='w-240 h-240 mb-4' />
-                                <p className="text-lg font-semibold text-center text-red-500">Yay! I knew you were going to say Yes!❤️ Happy Valentine's Day!</p>
+                                <p className="text-lg font-semibold text-center text-red-500">Yay! I knew you were going to say Yes Josie!❤️ Happy Valentine's Day!</p>
                                 <button
                                     className="mt-6 px-4 py-2 bg-blue-500 text-white rounded focus:ring-4 focus:ring-white"
                                     aria-label="Restart the experience"

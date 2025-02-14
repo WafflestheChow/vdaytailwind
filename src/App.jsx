@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-// Animation configurations for envelope and letter
+// Here's my setup for the envelope and letter animations.
+// It covers how things start, how they hide, how the letter appears,
+// and the duration for all transitions.
 const animationConfig = {
     initial: { y: 0, opacity: 1 },
     envelopeHidden: { y: 200, opacity: 0 },
@@ -15,30 +17,33 @@ export default function App() {
     const [accepted, setAccepted] = useState(false);
     const [yesButtons, setYesButtons] = useState([]);
 
-    // Keep track of No button mode ("click" => spawns Yes buttons, "run" => runaway)
+    // This variable tracks which mode "No" is in:
+    // "click" means clicking it spawns new Yes buttons,
+    // "run" means it jumps away when hovered.
     const [noMode, setNoMode] = useState("click");
 
-    // State for runaway effect
+    // Controls the runaway effect, plus keeps track of where the No button goes.
     const [runAway, setRunAway] = useState(false);
     const [noButtonPosition, setNoButtonPosition] = useState({ top: "0%", left: "0%" });
 
-    // If we're in "click" mode, clicking No spawns new Yes buttons.
-    // If we're in "run" mode, do nothing on click (or handle differently if you want)
+    // If "No" is in click mode, each click spawns multiple Yes buttons.
+    // If it's in run mode, we skip that behavior.
     const handleNoClick = () => {
         if (noMode === "click") {
-            // Each time "No" is clicked, spawn MULTIPLE Yes buttons
             setNoClicks((prev) => prev + 1);
             setYesButtons((prev) => {
                 if (prev.length >= 250) return prev;
-                // Let's spawn 3 new Yes buttons on each No click
+
+                // We're adding 3 new Yes buttons every time someone clicks "No".
                 const newButtons = [];
                 for (let i = 0; i < 3; i++) {
-                    // Check limit
+                    // We'll stop if we ever get to 250.
                     if (prev.length + newButtons.length >= 250) break;
                     newButtons.push({
                         top: `${Math.random() * 80 + 10}%`,
                         left: `${Math.random() * 80 + 10}%`,
-                        zIndex: prev.length + newButtons.length + 1,
+                        // Giving each Yes button a higher z-index so they can cover "No".
+                        zIndex: prev.length + newButtons.length + 2,
                     });
                 }
                 return [...prev, ...newButtons];
@@ -46,7 +51,7 @@ export default function App() {
         }
     };
 
-    // If we're in "run" mode, on mouse enter, randomize the position
+    // If "No" is in run mode, we shuffle its position when the user hovers over it.
     const handleMouseEnterNoButton = () => {
         if (noMode === "run") {
             setNoButtonPosition({
@@ -57,23 +62,23 @@ export default function App() {
         }
     };
 
+    // This resets everything and toggles the No button between "click" mode and "run" mode.
     const handleRestart = () => {
         setOpened(false);
         setAccepted(false);
         setNoClicks(0);
         setYesButtons([]);
-        // Toggle between "click" and "run" each time we restart
-        setNoMode((prev) => (prev === "click" ? "run" : "click"));
 
-        // Reset runaway state
+        setNoMode((prev) => (prev === "click" ? "run" : "click"));
         setRunAway(false);
         setNoButtonPosition({ top: "0%", left: "0%" });
     };
 
     return (
         <div className="flex h-screen items-center justify-center bg-pink-200">
+            {/* The main container for everything. */}
             <div className="relative flex flex-col items-center w-full max-w-full h-screen justify-center">
-                {/* Envelope */}
+                {/* The clickable "envelope" area. */}
                 <motion.div
                     role="button"
                     aria-label="Click to open envelope"
@@ -85,7 +90,7 @@ export default function App() {
                     onClick={() => setOpened(true)}
                     onKeyDown={(e) => e.key === "Enter" && setOpened(true)}
                 >
-                    {/* Stamp */}
+                    {/* Little stamp in the corner. */}
                     <img
                         src="https://jerseystamps.com/cdn/shop/collections/Lunar_New_Year_Snake_Stamp.png?v=1735565398"
                         alt="2025 Stamp"
@@ -95,7 +100,7 @@ export default function App() {
                     <p className="absolute text-white text-3xl font-cursive">For Josie</p>
                 </motion.div>
 
-                {/* Letter */}
+                {/* The actual "letter" content that shows up after opening. */}
                 {opened && (
                     <motion.div
                         initial={animationConfig.envelopeHidden}
@@ -118,7 +123,7 @@ export default function App() {
                                     className="w-full h-full flex flex-wrap items-center justify-center gap-4 mt-6 relative"
                                     style={{ minHeight: "200px" }}
                                 >
-                                    {/* Initial Yes button */}
+                                    {/* The first Yes button. */}
                                     <motion.button
                                         className="bg-red-500 text-white font-bold px-4 py-2 rounded relative z-10 focus:ring-4 focus:ring-white"
                                         aria-label="Accept and say Yes"
@@ -127,7 +132,7 @@ export default function App() {
                                         <strong>Yes!</strong>
                                     </motion.button>
 
-                                    {/* Spawned Yes buttons */}
+                                    {/* Any new Yes buttons that get spawned. */}
                                     {yesButtons.map((pos, index) => (
                                         <motion.button
                                             key={index}
@@ -144,9 +149,9 @@ export default function App() {
                                         </motion.button>
                                     ))}
 
-                                    {/* No button */}
+                                    {/* The No button with a lower z-index so a Yes can eventually cover it. */}
                                     <motion.button
-                                        className="bg-red-500 text-white font-bold px-4 py-2 rounded focus:ring-4 focus:ring-white"
+                                        className="bg-red-500 text-white font-bold px-4 py-2 rounded focus:ring-4 focus:ring-white z-0"
                                         aria-label="Reject and click No"
                                         onClick={handleNoClick}
                                         onMouseEnter={handleMouseEnterNoButton}
@@ -156,8 +161,9 @@ export default function App() {
                                                     position: "absolute",
                                                     top: noButtonPosition.top,
                                                     left: noButtonPosition.left,
+                                                    zIndex: 0,
                                                 }
-                                                : {}
+                                                : { zIndex: 0 }
                                         }
                                     >
                                         <strong>No</strong>

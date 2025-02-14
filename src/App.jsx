@@ -172,7 +172,7 @@ export default function App() {
                                     className="w-240 h-240 mb-4"
                                 />
                                 <p className="text-lg font-semibold text-center text-red-500">
-                                    Yay! I knew you were going to say <strong>Yes!</strong> ❤️ Happy Valentine's Day!
+                                    Yay! I knew you were going to say <strong>Yes!</strong> ❤️ <br/> Happy Valentine's Day!
                                 </p>
                                 <button
                                     className="mt-6 px-4 py-2 bg-blue-500 text-white rounded focus:ring-4 focus:ring-white"
